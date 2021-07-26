@@ -23,6 +23,8 @@ public class CustomerRepo implements Operation<Customer> {
 
     private final String SIZE = "select count(*) from customer";
 
+    private final String LAST_CUSTOMER="select * from customer where id=? ";
+
 
     @Override
     public void createTable() {
@@ -31,8 +33,9 @@ public class CustomerRepo implements Operation<Customer> {
 
             statement.executeUpdate(CREATE_TABLE);
 
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -77,21 +80,39 @@ public class CustomerRepo implements Operation<Customer> {
         // ....
     }
 
-    public Customer registerCustomer(Customer customer) {
+    public Customer registerCheck(Customer customer) {
 
         return getCustomerForRegister(customer);
     }
+    public Customer getLastCustomer(){
+        try(PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(LAST_CUSTOMER)) {
 
+            preparedStatement.setInt(1,size());
+            ResultSet resultSet=preparedStatement.executeQuery();
+            return CustomerMapper.mapToObjectOfCustomer(resultSet);
+
+        }catch (SQLException e){
+            System.out.println(e.getErrorCode());
+        }
+
+        return null;
+    }
     public Customer getCustomerForRegister(Customer cus) {
+
+        int counter=0;
         try (PreparedStatement statement = ApplicationContext.getConnection().prepareStatement(REGISTER)) {
+            statement.setString(1,cus.getUserName());
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                return CustomerMapper.mapToObjectOfCustomer(resultSet);
+               counter++;
             }
         } catch (SQLException e) {
             System.out.println(e.getErrorCode());
         }
+        if(counter>0)
         return null;
+
+        return cus;
 
 
     }
