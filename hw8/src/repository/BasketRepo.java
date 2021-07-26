@@ -4,7 +4,6 @@ package repository;
 import domain.Basket;
 import domain.Customer;
 import domain.Product;
-import mappper.ProductMapper;
 import service.ApplicationContext;
 
 import java.sql.PreparedStatement;

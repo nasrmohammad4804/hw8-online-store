@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class CustomerService {
     private static Scanner scannerForString = new Scanner(System.in);
-    private  static Scanner getScannerForInteger = new Scanner(System.in);
+
 
 
     public static Customer register() {

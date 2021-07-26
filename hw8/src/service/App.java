@@ -2,12 +2,11 @@ package service;
 
 import domain.Customer;
 
-import java.sql.SQLException;
 import java.util.Scanner;
 
 public class App {
-    private Scanner scannerForString = new Scanner(System.in);
-    private Scanner getScannerForInteger = new Scanner(System.in);
+
+    private Scanner scannerForInteger = new Scanner(System.in);
 
     public void start() {
 
@@ -38,7 +37,7 @@ public class App {
         int input = 0;
         while (true) {
             try {
-                input = getScannerForInteger.nextInt();
+                input = scannerForInteger.nextInt();
                 break;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -56,7 +55,7 @@ public class App {
                     menu();
                 } else {
                     ApplicationContext.getCustomerRepo().add(custom);
-                    custom.setId(ApplicationContext.getCustomerRepo().size()); 
+                    custom.setId(ApplicationContext.getCustomerRepo().size());
 
                     System.out.println("id when customer register is : "+custom.getId());//-------------------
                     System.out.println("welcome " + custom.getName() + "   " + custom.getFamily() + ")))\n\n");
@@ -155,7 +154,7 @@ public class App {
         while (true) {
             try {
                 System.out.println("enter your choice ...");
-                input = getScannerForInteger.nextInt();
+                input = scannerForInteger.nextInt();
 
                 break;
             } catch (Exception e) {
