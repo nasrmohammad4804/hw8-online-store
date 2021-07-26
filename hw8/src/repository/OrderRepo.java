@@ -16,9 +16,9 @@ public class OrderRepo implements Operation<Order> {
 
     private final String ADD_ORDER = "insert into orders(customer_id , orderDate ) values(?,?)";
 
-    private final String SIZE = "select count(*) as size from orders";
+    private final String SIZE = "select count(*) as number  from orders";
 
-    private final String ALL_ORDER = " select  od.*,orderDate from orders as o join orderdetails as od on od.order_id=o.id where o.customer_id=? ";
+    private final String ALL_ORDER = " select  od.*,orderDate,name from orders as o join orderdetails as od on od.order_id=o.id join product as p on p.id=od.product_id  where o.customer_id=? ";
 
     @Override
     public void createTable() {
@@ -42,17 +42,19 @@ public class OrderRepo implements Operation<Order> {
 
         if (resultSet.last()) {
 
-            resultSet.first();
-            System.out.println("order_id    product_id   product_number   price  orderDate");
+            resultSet.beforeFirst();
+            System.out.println("order_id    product_id    product_number     price          orderDate             productName");
 
             while (resultSet.next()) {
-                System.out.printf("%-10d %-10d %-10d %-10d %s\n", resultSet.getInt("order_id"),
+                System.out.printf("  %-15d %-13d %-12d %-11d %-27s %s\n", resultSet.getInt("order_id"),
                         resultSet.getInt("product_id"), resultSet.getInt("product_number"),
-                        resultSet.getInt("price"), resultSet.getString("orderDate"));
+                        resultSet.getInt("price"), resultSet.getString("orderDate"),
+                        resultSet.getString("name"));
             }
         } else {
             System.out.println("not exists any ordered ...");
         }
+        System.out.println("\n");
 
     }
 
@@ -75,9 +77,9 @@ public class OrderRepo implements Operation<Order> {
             Statement statement = ApplicationContext.getConnection().createStatement();
             ResultSet resultSet = statement.executeQuery(SIZE);
             while (resultSet.next())
-                counter=resultSet.getInt("size");
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
+                counter=resultSet.getInt("number");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
         return counter;
     }

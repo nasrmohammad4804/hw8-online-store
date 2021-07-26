@@ -21,7 +21,7 @@ public class CustomerRepo implements Operation<Customer> {
 
     private final String ADD_CUSTOMER = "insert into customer(name,family,username,password) values(?,?,?,?)";
 
-    private final String SIZE = "select count(*) from customer";
+    private final String SIZE = "select * from customer";
 
     private final String LAST_CUSTOMER="select * from customer where id=? ";
 
