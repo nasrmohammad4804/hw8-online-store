@@ -16,9 +16,9 @@ public class OrderRepo implements Operation<Order> {
 
     private final String ADD_ORDER = "insert into orders(customer_id , orderDate ) values(?,?)";
 
-    private final String SIZE="select count(*) from orders";
+    private final String SIZE = "select count(*) as size from orders";
 
-    private final  String ALL_ORDER=" select  od.*,orderDate from orders as o join orderdetails as od on od.order_id=o.id where o.customer_id=? ";
+    private final String ALL_ORDER = " select  od.*,orderDate from orders as o join orderdetails as od on od.order_id=o.id where o.customer_id=? ";
 
     @Override
     public void createTable() {
@@ -32,21 +32,29 @@ public class OrderRepo implements Operation<Order> {
         }
 
     }
+
     public void showAllOrderedProduct(int customer_id) throws SQLException {
 
-       PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(ALL_ORDER);
-       preparedStatement.setInt(1,customer_id);
+        PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(ALL_ORDER, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        preparedStatement.setInt(1, customer_id);
 
-        System.out.println("order_id    product_id   product_number   price  orderDate");
+        ResultSet resultSet = preparedStatement.executeQuery();
 
-        ResultSet resultSet=preparedStatement.executeQuery();
+        if (resultSet.last()) {
 
-        while (resultSet.next()){
-            System.out.printf("%-10d %-10d %-10d %-10d %s\n",resultSet.getInt("order_id"),
-                    resultSet.getInt("product_id"),resultSet.getInt("product_number"),
-                    resultSet.getInt("price"),resultSet.getString("orderDate"));
+            resultSet.first();
+            System.out.println("order_id    product_id   product_number   price  orderDate");
+
+            while (resultSet.next()) {
+                System.out.printf("%-10d %-10d %-10d %-10d %s\n", resultSet.getInt("order_id"),
+                        resultSet.getInt("product_id"), resultSet.getInt("product_number"),
+                        resultSet.getInt("price"), resultSet.getString("orderDate"));
+            }
+        } else {
+            System.out.println("not exists any ordered ...");
         }
-     }
+
+    }
 
     @Override
     public void add(Order order) throws SQLException {
@@ -61,14 +69,14 @@ public class OrderRepo implements Operation<Order> {
 
     @Override
     public int size() {
-        int counter=0;
+        int counter = 0;
         try {
 
             Statement statement = ApplicationContext.getConnection().createStatement();
-            ResultSet resultSet=statement.executeQuery(SIZE);
+            ResultSet resultSet = statement.executeQuery(SIZE);
             while (resultSet.next())
-                counter++;
-        }catch (SQLException e){
+                counter=resultSet.getInt("size");
+        } catch (SQLException e) {
             System.out.println(e.getErrorCode());
         }
         return counter;

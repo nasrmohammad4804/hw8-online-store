@@ -66,6 +66,12 @@ public class BasketService {
     }
 
     public static void showAllProductInBasket(Customer customer) {
+
+        if(ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()).isEmpty()){
+            System.out.println("basket is empty  ");
+            return;
+        }
+
         System.out.println("id     productName     number       price        status\n");
         for (Product p : ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId())) {
             System.out.printf("%-10d %-14s %-10d %-10d   %s\n", p.getId(), p.getName(), p.getNumberOfProduct(), p.getPrice(), "payment");
@@ -85,6 +91,12 @@ public class BasketService {
     }
 
     public static void confirmForAddToOrder(Customer customer) {
+
+        if(ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()).isEmpty()){
+            System.out.println("basket is empty ");
+            return;
+        }
+
         System.out.println("are you want to confirm basket ???\nif you want press yes ");
         String result = scanner.nextLine();
 

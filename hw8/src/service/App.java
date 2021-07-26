@@ -55,14 +55,18 @@ public class App {
                     menu();
                 } else {
                     ApplicationContext.getCustomerRepo().add(custom);
+                    System.out.println("welcome " + custom.getName() + "   " + custom.getFamily() + ")))\n\n");
                     customerPanel(custom);
                 }
 
             }
             case 2 -> {
                 Customer customer = CustomerService.login();
-                if (customer != null)
+                if (customer != null){
+                    System.out.println("welcome " + customer.getName() + "   " + customer.getFamily() + ")))\n\n");
                     customerPanel(customer);
+                }
+
                 else {
                     System.out.println("userName or password is wrong ...");
                 }
@@ -80,9 +84,7 @@ public class App {
 
     public void customerPanel(Customer customer) {
 
-        System.out.println("welcome " + customer.getName() + "   " + customer.getFamily() + ")))\n\n");
 
-        System.out.println("\n\n");
         System.out.println("1.add product  to basket");
         System.out.println("2.remove product from basket");
         System.out.println("3.show all product witch add to basket with number of their");
@@ -121,6 +123,7 @@ public class App {
             case 5 ->{
                 BasketService.showAllProductInBasket(customer);
                 BasketService.confirmForAddToOrder(customer);
+                customerPanel(customer);
             }
             case 6 ->{
                 BasketService.showAllProduct();
