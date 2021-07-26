@@ -11,7 +11,7 @@ public class App {
 
     public void start() {
 
-        ApplicationContext str=new ApplicationContext();
+        ApplicationContext str = new ApplicationContext();
 
         ApplicationContext.getCustomerRepo().createTable();
         ApplicationContext.getProductRepo().createTable();
@@ -29,7 +29,7 @@ public class App {
         }
     }
 
-    private void menu() throws SQLException {
+    private void menu() {
 
         System.out.println("1.register");
         System.out.println("2.login");
@@ -81,24 +81,52 @@ public class App {
     public void customerPanel(Customer customer) {
 
         System.out.println("welcome " + customer.getName() + "   " + customer.getFamily() + ")))\n\n");
-        BasketService.showAllProduct();
+
         System.out.println("\n\n");
         System.out.println("1.add product  to basket");
         System.out.println("2.remove product from basket");
         System.out.println("3.show all product witch add to basket with number of their");
         System.out.println("4.show total price ");
         System.out.println("5.final confirm of customer ");
+        System.out.println("6.all product");
+        System.out.println("7.back to home");
 
 
-        switch (resultOfInputOnCustomerPanel()){
+        switch (resultOfInputOnCustomerPanel()) {
 
             case 1 -> {
                 BasketService.addProduct(customer);
                 customerPanel(customer);
             }
-            case 2 ->{
-
+            case 2 -> {
+                try {
+                    BasketService.removeProduct(customer);
+                    customerPanel(customer);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
             }
+            case 3 ->{
+                BasketService.showAllProductInBasket(customer);
+                customerPanel(customer);
+            }
+
+            case 4 ->{
+                BasketService.showTotalPrice(customer);
+                customerPanel(customer);
+            }
+
+            case 5 ->{
+                BasketService.showAllProductInBasket(customer);
+                BasketService.confirmForAddToOrder(customer);
+            }
+            case 6 ->{
+                BasketService.showAllProduct();
+                customerPanel(customer);
+            }
+
+            case 7 -> menu();
         }
     }
 
