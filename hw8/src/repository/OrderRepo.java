@@ -1,5 +1,6 @@
 package repository;
 
+import com.sun.security.jgss.GSSUtil;
 import domain.Order;
 import service.ApplicationContext;
 
@@ -17,6 +18,8 @@ public class OrderRepo implements Operation<Order> {
 
     private final String SIZE="select count(*) from orders";
 
+    private final  String ALL_ORDER=" select  od.*,orderDate from orders as o join orderdetails as od on od.order_id=o.id where o.customer_id=? ";
+
     @Override
     public void createTable() {
 
@@ -29,6 +32,21 @@ public class OrderRepo implements Operation<Order> {
         }
 
     }
+    public void showAllOrderedProduct(int customer_id) throws SQLException {
+
+       PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(ALL_ORDER);
+       preparedStatement.setInt(1,customer_id);
+
+        System.out.println("order_id    product_id   product_number   price  orderDate");
+
+        ResultSet resultSet=preparedStatement.executeQuery();
+
+        while (resultSet.next()){
+            System.out.printf("%-10d %-10d %-10d %-10d %s\n",resultSet.getInt("order_id"),
+                    resultSet.getInt("product_id"),resultSet.getInt("product_number"),
+                    resultSet.getInt("price"),resultSet.getString("orderDate"));
+        }
+     }
 
     @Override
     public void add(Order order) throws SQLException {

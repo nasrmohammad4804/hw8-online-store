@@ -89,7 +89,8 @@ public class App {
         System.out.println("4.show total price ");
         System.out.println("5.final confirm of customer ");
         System.out.println("6.all product");
-        System.out.println("7.back to home");
+        System.out.println("7.all product ordered !!!");
+        System.out.println("8.back to home");
 
 
         switch (resultOfInputOnCustomerPanel()) {
@@ -126,13 +127,24 @@ public class App {
                 customerPanel(customer);
             }
 
-            case 7 -> menu();
+            case 7 ->{
+                try {
+                    ApplicationContext.getOrderRepo().showAllOrderedProduct(customer.getId());
+                    customerPanel(customer);
+                }catch (Exception e){
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+
+            }
+
+            case 8 -> menu();
         }
     }
 
 
     public int resultOfInputOnCustomerPanel() {
-        int input = 0;
+        int input;
         while (true) {
             try {
                 System.out.println("enter your choice ...");
