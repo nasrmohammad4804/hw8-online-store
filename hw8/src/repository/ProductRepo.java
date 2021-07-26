@@ -21,7 +21,7 @@ public class ProductRepo {
 
     private final String GET_PRODUCT_WITH_NAME = "select * from product where name=?";
 
-    private final String DECREASE_OF_PRODUCT_NUMBER = "update product set number=? where name=? ";
+    private final String CHANGE_OF_PRODUCT_NUMBER = "update product set number=? where name=? ";
 
     public void createTable() {
         try (Statement statement = ApplicationContext.getConnection().createStatement()) {
@@ -64,6 +64,29 @@ public class ProductRepo {
         }
         return null;
     }
+    public void addNumberOfProduct(String name){
+
+        Product product = null;
+        try {
+            product= getProduct(name);
+        } catch (SQLException e) {
+            System.out.println(e.getErrorCode());
+            removeNumberOfProduct(name);
+        }
+
+        int number = product.getNumberOfProduct()+ 1;
+
+        try (PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(CHANGE_OF_PRODUCT_NUMBER)) {
+
+            preparedStatement.setInt(1, number);
+            preparedStatement.setString(2, name);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getErrorCode());
+        }
+
+    }
 
     public void removeNumberOfProduct(String name) {
 
@@ -77,7 +100,7 @@ public class ProductRepo {
 
         int number = p.getNumberOfProduct() - 1;
 
-        try (PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(DECREASE_OF_PRODUCT_NUMBER)) {
+        try (PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(CHANGE_OF_PRODUCT_NUMBER)) {
 
             preparedStatement.setInt(1, number);
             preparedStatement.setString(2, name);
