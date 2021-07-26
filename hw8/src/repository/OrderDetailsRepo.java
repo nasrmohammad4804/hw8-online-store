@@ -11,18 +11,19 @@ import java.sql.Statement;
 
 public class OrderDetailsRepo implements Operation<OrderDetails> {
 
-    private final String CREATE_TABLE = "create table if not exists orderDetails(order_id int,product_id int,product_number int ,price int,foreign key" +
-            "(order_id) references orders(id) , foreign_key(product_id ) references product(id)  , primary key (order_id,product_id)  )";
+    private final String CREATE_TABLE = "create table if not exists orderDetails(order_id int,product_id int,product_number int ,price int," +
+            "foreign key(order_id) references orders(id) , foreign key(product_id ) references product(id)  , primary key (order_id,product_id)  )";
 
     private final String ADD_ORDER_OF_DETAILS = "insert into orderDetails(order_id,product_id, product_number,price) values(?,?,?,?) ";
 
     @Override
     public void createTable() {
         try (Statement statement = ApplicationContext.getConnection().createStatement()) {
-            statement.executeQuery(CREATE_TABLE);
+            statement.executeUpdate(CREATE_TABLE);
 
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

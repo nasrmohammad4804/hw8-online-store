@@ -21,10 +21,11 @@ public class OrderRepo implements Operation<Order> {
     public void createTable() {
 
         try (Statement statement = ApplicationContext.getConnection().createStatement()) {
-            statement.executeQuery(CREATE_TABLE);
+            statement.executeUpdate(CREATE_TABLE);
 
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
     }
