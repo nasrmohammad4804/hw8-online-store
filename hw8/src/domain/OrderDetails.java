@@ -9,10 +9,16 @@ public class OrderDetails extends Order {
     private List<Product> list;
 
     public OrderDetails(int id, Customer customer, Timestamp orderDate, int order_id, List<Product> list) {
-        super(id, customer, orderDate);
-        this.order_id = order_id;
+        super(order_id, customer, orderDate);
+        this.id = id;
         this.list=list;
     }
+    public OrderDetails(Customer customer, Timestamp orderDate ,int order_id ,List<Product> list){
+        super(order_id,customer,orderDate);
+        this.list=list;
+    }
+
+
 
     public int getOrder_id() {
         return order_id;
