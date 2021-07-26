@@ -50,11 +50,15 @@ public class App {
 
             case 1 -> {
                 Customer custom = CustomerService.register();
+
                 if (custom == null) {
                     System.out.println("this user with data already exists !!!");
                     menu();
                 } else {
                     ApplicationContext.getCustomerRepo().add(custom);
+                    custom.setId(ApplicationContext.getCustomerRepo().size()); 
+
+                    System.out.println("id when customer register is : "+custom.getId());//-------------------
                     System.out.println("welcome " + custom.getName() + "   " + custom.getFamily() + ")))\n\n");
                     customerPanel(custom);
                 }

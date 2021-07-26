@@ -14,29 +14,46 @@ public class BasketService {
     public static void showAllProduct() {
         for (Product p : ApplicationContext.getProductRepo().getAllProduct())
             System.out.println(p);
+
+        System.out.println("\n\n");
     }
 
     public static void addProduct(Customer customer) {
 
-        if (ApplicationContext.getBasketRepo().checkNumberOfProductInBasket(customer.getId()) > 5) {
-            System.out.println("capacity is full if you want add product at least remove one already product ");
+        if (ApplicationContext.getBasketRepo().checkNumberOfProductInBasket(customer.getId()) >= 5) {
+            System.out.println("$$capacity is full if you want add product at least remove one already product$$\n\n ");
             return;
         }
         showAllProduct();
-        System.out.println("enter productName");
-        String name = scanner.nextLine();
+
+        String productName = "";
+        while (true) {
+            try {
+                System.out.println("enter productName ...");
+                productName = scanner.nextLine();
+                if (ApplicationContext.getProductRepo().getProduct(productName) == null) {
+                    System.out.println("this name not exists for product ... try again\n");
+                    continue;
+                }
+                break;
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+        }
 
         try {
 
-            if (ApplicationContext.getBasketRepo().NumberOfProductInBasketForCustomer(customer, ApplicationContext.getProductRepo().getProduct(name).getId()) == 0) {
-                ApplicationContext.getBasketRepo().add(new Basket(customer, ApplicationContext.getProductRepo().getProduct(name)));
-                ApplicationContext.getProductRepo().removeNumberOfProduct(name);
+            if (ApplicationContext.getBasketRepo().NumberOfProductInBasketForCustomer(customer, ApplicationContext.getProductRepo().getProduct(productName).getId()) == 0) {
+                ApplicationContext.getBasketRepo().add(new Basket(customer, ApplicationContext.getProductRepo().getProduct(productName)));
+                ApplicationContext.getProductRepo().removeNumberOfProduct(productName);
             } else {
-                if (ApplicationContext.getProductRepo().getProduct(name).getNumberOfProduct() == 0) {
+                if (ApplicationContext.getProductRepo().getProduct(productName).getNumberOfProduct() == 0) {
                     System.out.println("sorry dont have any of this product");
                 } else {
-                    ApplicationContext.getBasketRepo().addNumberOfProduct(customer.getId(), ApplicationContext.getProductRepo().getProduct(name).getId());
-                    ApplicationContext.getProductRepo().removeNumberOfProduct(name);
+                    ApplicationContext.getBasketRepo().addNumberOfProduct(customer.getId(), ApplicationContext.getProductRepo().getProduct(productName).getId());
+                    ApplicationContext.getProductRepo().removeNumberOfProduct(productName);
                 }
             }
 
@@ -48,11 +65,20 @@ public class BasketService {
     }
 
     public static void removeProduct(Customer customer) throws SQLException {
+        String name = "";
+        while (true) {
+            System.out.println("enter productName ...");
+            name = scanner.nextLine();
+            if (ApplicationContext.getProductRepo().getProduct(name) == null) {
+                System.out.println("this name not exists for product ... try again\n");
+                continue;
+            }
+            break;
+        }
 
-        System.out.println("enter productName ...");
-        String name = scanner.nextLine();
+
         if (ApplicationContext.getBasketRepo().getNumberOfProduct(customer.getId(), ApplicationContext.getProductRepo().getProduct(name).getId()) == 0) {
-            System.out.println("impossible to removeProduct");
+            System.out.println("!!!  impossible to removeProduct  !!!\n\n");
             return;
 
         } else if (ApplicationContext.getBasketRepo().getNumberOfProduct(customer.getId(), ApplicationContext.getProductRepo().getProduct(name).getId()) == 1) {
@@ -67,8 +93,8 @@ public class BasketService {
 
     public static void showAllProductInBasket(Customer customer) {
 
-        if(ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()).isEmpty()){
-            System.out.println("basket is empty  ");
+        if (ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()).isEmpty()) {
+            System.out.println("basket is empty  \n\n");
             return;
         }
 
@@ -76,6 +102,7 @@ public class BasketService {
         for (Product p : ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId())) {
             System.out.printf("%-10d %-14s %-10d %-10d   %s\n", p.getId(), p.getName(), p.getNumberOfProduct(), p.getPrice(), "payment");
         }
+        System.out.println("\n\n");
     }
 
     public static void showTotalPrice(Customer customer) {
@@ -87,13 +114,13 @@ public class BasketService {
             System.out.println(p.getId() + "    " + p.getNumberOfProduct() + "    " + p.getPrice() + "    " + "total price on productName  " + p.getName() + " is : " + (p.getNumberOfProduct() * p.getPrice()));
         }
         System.out.println("--------------------------------------\n");
-        System.out.println("total of all price is : " + total);
+        System.out.println("total of all price is : " + total+"\n\n");
     }
 
     public static void confirmForAddToOrder(Customer customer) {
 
-        if(ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()).isEmpty()){
-            System.out.println("basket is empty ");
+        if (ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()).isEmpty()) {
+            System.out.println("basket is empty \n\n");
             return;
         }
 
@@ -104,21 +131,23 @@ public class BasketService {
             try {
                 ApplicationContext.getConnection().setAutoCommit(false);
 
-
-                ApplicationContext.getBasketRepo().confirmBasket(customer.getId(), ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()));
-
                 ApplicationContext.getOrderRepo().add(new Order(customer, Timestamp.valueOf(LocalDateTime.now())));
 
                 ApplicationContext.getOrderDetailsRepo().add(new OrderDetails(customer, Timestamp.valueOf(LocalDateTime.now()),
                         ApplicationContext.getOrderRepo().size(), ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId())));
 
+
+                ApplicationContext.getBasketRepo().confirmBasket(customer.getId(), ApplicationContext.getBasketRepo().getAllProductInBasket(customer.getId()));
+
                 ApplicationContext.getConnection().commit();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
+                e.printStackTrace();
                 try {
                     ApplicationContext.getConnection().rollback();
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
+
                 }
 
             }
@@ -128,8 +157,7 @@ public class BasketService {
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
-        }
-        else {
+        } else {
             System.out.println("try again ....");
             confirmForAddToOrder(customer);
         }

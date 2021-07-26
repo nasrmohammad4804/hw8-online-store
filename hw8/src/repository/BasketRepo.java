@@ -22,9 +22,9 @@ public class BasketRepo implements Operation<Basket>{
     private final String ADD_BASKET="insert into basket(product_id,number_product,customer_id ,price,status) values(?,?,?,?,'payment')";
     private final String SIZE="select count(*) from basket";
 
-    private final String CHANGE_NUMBER_OF_PRODUCT_IN_BASKET="update basket set number_product =? where customer_id=? and product_id=?";
+    private final String CHANGE_NUMBER_OF_PRODUCT_IN_BASKET="update basket set number_product =? where customer_id=? and product_id=? and status='payment' ";
 
-    private final String DELETE_FROM_BASKET="delete from basket where customer_id=? and product_id=?";
+    private final String DELETE_FROM_BASKET="delete from basket where customer_id=? and product_id=? and status='payment'";
 
     private final String SHOW_ALL_PRODUCT_IN_BASKET_OF_CUSTOMER="select b.*, p.name as name from basket as b join product as p on p.id=b.product_id where customer_id=? and status='payment' ";
 
@@ -86,7 +86,7 @@ public class BasketRepo implements Operation<Basket>{
     }
     public int checkNumberOfProductInBasket(int customer_id){
         int counter=0;
-        try(PreparedStatement statement=ApplicationContext.getConnection().prepareStatement("select  * from basket where customer_id=?")) {
+        try(PreparedStatement statement=ApplicationContext.getConnection().prepareStatement("select  * from basket where customer_id=? and status='payment'  ")) {
 
             statement.setInt(1,customer_id);
             ResultSet resultSet =statement.executeQuery();
@@ -97,6 +97,7 @@ public class BasketRepo implements Operation<Basket>{
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+
         return counter;
 
     }
@@ -116,6 +117,9 @@ public class BasketRepo implements Operation<Basket>{
     @Override
     public void add(Basket basket) throws SQLException {
         //product_id,number_product,customer_id ,price,status) values(?,?,?,?,'payment')";
+
+        System.out.println(basket.getCustomer().getId());
+        System.out.println(basket.getCustomer().getId());
         PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(ADD_BASKET);
         preparedStatement.setInt(1,basket.getProduct().getId());
         preparedStatement.setInt(2,1); //number_of product when add to table basket is : 1
@@ -185,18 +189,15 @@ public class BasketRepo implements Operation<Basket>{
 
 
     }
-    public void confirmBasket(int customer_id, List<Product> list){
+    public void confirmBasket(int customer_id, List<Product> list) throws SQLException {
 
-        try(PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(CHANGE_STATUS)) {
+        PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(CHANGE_STATUS);
             for(Product p : list){
 
                 preparedStatement.setInt(1,customer_id);
                 preparedStatement.setInt(2,p.getId());
                 preparedStatement.executeUpdate();
             }
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+
     }
 }
