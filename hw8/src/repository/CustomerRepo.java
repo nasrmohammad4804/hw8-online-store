@@ -1,7 +1,7 @@
 package repository;
 
 import domain.Customer;
-import mappper.CustomerMapper;
+import mapper.CustomerMapper;
 import service.ApplicationContext;
 
 import java.sql.PreparedStatement;
@@ -23,7 +23,6 @@ public class CustomerRepo implements Operation<Customer> {
 
     private final String SIZE = "select * from customer";
 
-    private final String LAST_CUSTOMER="select * from customer where id=? ";
 
 
     @Override
@@ -75,28 +74,11 @@ public class CustomerRepo implements Operation<Customer> {
         }
     }
 
-    @Override
-    public void delete(Customer x) {
-        // ....
-    }
-
     public Customer registerCheck(Customer customer) {
 
         return getCustomerForRegister(customer);
     }
-    public Customer getLastCustomer(){
-        try(PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(LAST_CUSTOMER)) {
 
-            preparedStatement.setInt(1,size());
-            ResultSet resultSet=preparedStatement.executeQuery();
-            return CustomerMapper.mapToObjectOfCustomer(resultSet);
-
-        }catch (SQLException e){
-            System.out.println(e.getErrorCode());
-        }
-
-        return null;
-    }
     public Customer getCustomerForRegister(Customer cus) {
 
         int counter=0;
@@ -104,13 +86,13 @@ public class CustomerRepo implements Operation<Customer> {
             statement.setString(1,cus.getUserName());
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-               counter++;
+                counter++;
             }
         } catch (SQLException e) {
             System.out.println(e.getErrorCode());
         }
         if(counter>0)
-        return null;
+            return null;
 
         return cus;
 
@@ -119,7 +101,7 @@ public class CustomerRepo implements Operation<Customer> {
 
     public Customer loginCustomer(String userName, String password) {
 
-        return getCustomerForLogin(userName, password); //TODO mybe return null if customer not exists
+        return getCustomerForLogin(userName, password);
     }
 
     public Customer getCustomerForLogin(String userName, String password) {
@@ -140,3 +122,4 @@ public class CustomerRepo implements Operation<Customer> {
         return customer;
     }
 }
+

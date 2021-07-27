@@ -1,8 +1,6 @@
 package repository;
 
-
 import domain.Basket;
-import domain.Customer;
 import domain.Product;
 import service.ApplicationContext;
 
@@ -13,7 +11,7 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BasketRepo implements Operation<Basket>{
+public class BasketRepo implements SpecificOperation<Basket,Integer>{
     private final String CREATE_TABLE="create table if not exists basket(id int primary key auto_increment ," +
             "product_id int , customer_id int , number_product int , price int , status varchar (50) ," +
             "foreign key(product_id) references product(id) , foreign key(customer_id) references customer(id)   )";
@@ -41,27 +39,47 @@ public class BasketRepo implements Operation<Basket>{
         }
     }
 
-    public int NumberOfProductInBasketForCustomer(Customer customer,int product_id) throws SQLException {
-
-        int counter=0;
-
-        PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement("select  number_product from basket where customer_id=? and product_id=?  and  status='payment' ");
-
-        preparedStatement.setInt(1,customer.getId());
-        preparedStatement.setInt(2,product_id);
-
-        ResultSet resultSet=preparedStatement.executeQuery();
-
-        while (resultSet.next()){
-           counter=resultSet.getInt("number_product");
-        }
-        return counter;
 
 
+    @Override
+    public void increaseProductNumber(Integer... element) throws SQLException {
 
+        int customerID=element[0];
+        int productID=element[1];
+
+        int count=getNumberOfProduct(customerID,productID)+1;
+
+        PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(CHANGE_NUMBER_OF_PRODUCT_IN_BASKET);
+
+        preparedStatement.setInt(1,count);
+        preparedStatement.setInt(2,customerID);
+        preparedStatement.setInt(3,productID);
+        preparedStatement.executeUpdate();
 
     }
-    public List<Product> getAllProductInBasket(int customerId){
+
+    @Override
+    public void decreaseProductNumber(Integer... element) throws SQLException {
+
+        int customerID=element[0];
+        int productID=element[1];
+        int result=NumberOfProductInBasketForCustomer(customerID,productID);
+
+        --result;
+        PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(CHANGE_NUMBER_OF_PRODUCT_IN_BASKET);
+        preparedStatement.setInt(1,result);
+        preparedStatement.setInt(2,customerID);
+        preparedStatement.setInt(3,productID);
+        preparedStatement.executeUpdate();
+    }
+
+
+
+    @Override
+    public List<Product> getAllProduct(Integer ... element) {
+
+        int customerId=element[0];
+
 
         List<Product> list=new LinkedList<>();
 
@@ -72,8 +90,8 @@ public class BasketRepo implements Operation<Basket>{
 
             while (resultSet.next()){
 
-              list.add(new Product(resultSet.getInt("product_id"),resultSet.getString("name"),
-                      resultSet.getInt("number_product"),resultSet.getInt("price")));
+                list.add(new Product(resultSet.getInt("product_id"),resultSet.getString("name"),
+                        resultSet.getInt("number_product"),resultSet.getInt("price")));
             }
 
         }catch (Exception e){
@@ -83,14 +101,36 @@ public class BasketRepo implements Operation<Basket>{
         return list;
 
     }
+
+    public int NumberOfProductInBasketForCustomer(int customer_id, int product_id) throws SQLException {
+
+        int counter=0;
+
+        PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement("select  number_product from basket where customer_id=? and product_id=?  and  status='payment' ");
+
+        preparedStatement.setInt(1,customer_id);
+        preparedStatement.setInt(2,product_id);
+
+        ResultSet resultSet=preparedStatement.executeQuery();
+
+        while (resultSet.next()){
+            counter=resultSet.getInt("number_product");
+        }
+        return counter;
+
+
+
+
+    }
+
     public int checkNumberOfProductInBasket(int customer_id){
         int counter=0;
         try(PreparedStatement statement=ApplicationContext.getConnection().prepareStatement("select  * from basket where customer_id=? and status='payment'  ")) {
 
             statement.setInt(1,customer_id);
             ResultSet resultSet =statement.executeQuery();
-           while (resultSet.next())
-               counter++;
+            while (resultSet.next())
+                counter++;
 
         }catch (Exception e){
             System.out.println(e.getMessage());
@@ -147,20 +187,20 @@ public class BasketRepo implements Operation<Basket>{
 
     @Override
     public int size()   {
-       int counter=0;
-       try(Statement statement =ApplicationContext.getConnection().createStatement()) {
+        int counter=0;
+        try(Statement statement =ApplicationContext.getConnection().createStatement()) {
 
-           ResultSet resultSet =statement.executeQuery(SIZE);
-           while (resultSet.next())
-               counter++;
+            ResultSet resultSet =statement.executeQuery(SIZE);
+            while (resultSet.next())
+                counter++;
 
-       }catch (SQLException e){
-           System.out.println(e.getErrorCode());
-       }
-       return counter;
+        }catch (SQLException e){
+            System.out.println(e.getErrorCode());
+        }
+        return counter;
     }
 
-    @Override
+
     public void delete(Basket x) {
 
         try(PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(DELETE_FROM_BASKET)) {
@@ -175,28 +215,16 @@ public class BasketRepo implements Operation<Basket>{
             e.printStackTrace();
         }
     }
-    public void decreaseProductNumber(Customer customer, int product_id) throws SQLException {
 
-        int result=NumberOfProductInBasketForCustomer(customer,product_id);
-
-        --result;
-        PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(CHANGE_NUMBER_OF_PRODUCT_IN_BASKET);
-        preparedStatement.setInt(1,result);
-        preparedStatement.setInt(2,customer.getId());
-        preparedStatement.setInt(3,product_id);
-        preparedStatement.executeUpdate();
-
-
-    }
     public void confirmBasket(int customer_id, List<Product> list) throws SQLException {
 
         PreparedStatement preparedStatement=ApplicationContext.getConnection().prepareStatement(CHANGE_STATUS);
-            for(Product p : list){
+        for(Product p : list){
 
-                preparedStatement.setInt(1,customer_id);
-                preparedStatement.setInt(2,p.getId());
-                preparedStatement.executeUpdate();
-            }
+            preparedStatement.setInt(1,customer_id);
+            preparedStatement.setInt(2,p.getId());
+            preparedStatement.executeUpdate();
+        }
 
     }
 }

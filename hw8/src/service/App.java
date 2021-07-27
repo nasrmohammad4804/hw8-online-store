@@ -34,7 +34,7 @@ public class App {
         System.out.println("2.login");
         System.out.println("3.exit");
 
-        int input = 0;
+        int input;
         while (true) {
             try {
                 input = scannerForInteger.nextInt();
@@ -57,7 +57,7 @@ public class App {
                     ApplicationContext.getCustomerRepo().add(custom);
                     custom.setId(ApplicationContext.getCustomerRepo().size());
 
-                    System.out.println("id when customer register is : "+custom.getId());//-------------------
+                    System.out.println("id when customer register is : " + custom.getId());//-------------------
                     System.out.println("welcome " + custom.getName() + "   " + custom.getFamily() + ")))\n\n");
                     customerPanel(custom);
                 }
@@ -65,12 +65,10 @@ public class App {
             }
             case 2 -> {
                 Customer customer = CustomerService.login();
-                if (customer != null){
+                if (customer != null) {
                     System.out.println("welcome " + customer.getName() + "   " + customer.getFamily() + ")))\n\n");
                     customerPanel(customer);
-                }
-
-                else {
+                } else {
                     System.out.println("userName or password is wrong ...");
                 }
             }
@@ -113,31 +111,31 @@ public class App {
                     e.printStackTrace();
                 }
             }
-            case 3 ->{
+            case 3 -> {
                 BasketService.showAllProductInBasket(customer);
                 customerPanel(customer);
             }
 
-            case 4 ->{
+            case 4 -> {
                 BasketService.showTotalPrice(customer);
                 customerPanel(customer);
             }
 
-            case 5 ->{
+            case 5 -> {
                 BasketService.showAllProductInBasket(customer);
                 BasketService.confirmForAddToOrder(customer);
                 customerPanel(customer);
             }
-            case 6 ->{
+            case 6 -> {
                 BasketService.showAllProduct();
                 customerPanel(customer);
             }
 
-            case 7 ->{
+            case 7 -> {
                 try {
                     ApplicationContext.getOrderRepo().showAllOrderedProduct(customer.getId());
                     customerPanel(customer);
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
@@ -164,5 +162,5 @@ public class App {
         return input;
 
     }
-
 }
+
