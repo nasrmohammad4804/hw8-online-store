@@ -107,12 +107,12 @@ public class BasketService {
 
     public static void showTotalPrice(Customer customer) {
 
-        double total = 0;
+        long total=  ApplicationContext.getBasketRepo().getAllProduct(customer.getId()).stream().map(x -> x.getNumberOfProduct()*x.getPrice()).reduce(Integer::sum).get();
 
-        for (Product p : ApplicationContext.getBasketRepo().getAllProduct(customer.getId())) {
-            total += (p.getPrice() * p.getNumberOfProduct());
-            System.out.println(p.getId() + "    " + p.getNumberOfProduct() + "    " + p.getPrice() + "    " + "total price on productName  " + p.getName() + " is : " + (p.getNumberOfProduct() * p.getPrice()));
-        }
+        ApplicationContext.getBasketRepo().getAllProduct(customer.getId()).stream().map(x ->
+                x.getId() + "    " + x.getNumberOfProduct() + "    " + x.getPrice() + "    " + "total price on productName  " + x.getName() + " is : " + (x.getNumberOfProduct() * x.getPrice()))
+                .forEach(System.out::println);
+
         System.out.println("--------------------------------------\n");
         System.out.println("total of all price is : " + total+"\n\n");
     }
