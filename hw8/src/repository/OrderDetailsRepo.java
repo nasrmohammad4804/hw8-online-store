@@ -34,13 +34,13 @@ public class OrderDetailsRepo implements Operation<OrderDetails> {
 
         for (Product p : orderDetails.getList()) {
 
-                preparedStatement = ApplicationContext.getConnection().prepareStatement(ADD_ORDER_OF_DETAILS);
+            preparedStatement = ApplicationContext.getConnection().prepareStatement(ADD_ORDER_OF_DETAILS);
 
-                preparedStatement.setInt(1, orderDetails.getId());
-                preparedStatement.setInt(2, p.getId());
-                preparedStatement.setInt(3, p.getNumberOfProduct());
-                preparedStatement.setInt(4, p.getPrice());
-                preparedStatement.executeUpdate();
+            preparedStatement.setInt(1, orderDetails.getId());
+            preparedStatement.setInt(2, p.getId());
+            preparedStatement.setInt(3, p.getNumberOfProduct());
+            preparedStatement.setInt(4, p.getPrice());
+            preparedStatement.executeUpdate();
 
 
         }
@@ -59,8 +59,5 @@ public class OrderDetailsRepo implements Operation<OrderDetails> {
         return counter;
     }
 
-    @Override
-    public void delete(OrderDetails x) {
-        // TODO  after program design this
-    }
+
 }

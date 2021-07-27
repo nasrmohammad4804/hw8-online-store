@@ -1,6 +1,5 @@
 package repository;
 
-import com.sun.security.jgss.GSSUtil;
 import domain.Order;
 import service.ApplicationContext;
 
@@ -60,7 +59,7 @@ public class OrderRepo implements Operation<Order> {
 
     @Override
     public void add(Order order) throws SQLException {
-        // throw rather than try and catch because use transaction ...
+        // throws rather than try and catch because use transaction ...
         PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(ADD_ORDER);
         preparedStatement.setInt(1, order.getCustomer().getId());
         preparedStatement.setTimestamp(2, order.getOrderDate());
@@ -84,8 +83,5 @@ public class OrderRepo implements Operation<Order> {
         return counter;
     }
 
-    @Override
-    public void delete(Order x) {
-        // ... TODO im working after
-    }
+
 }

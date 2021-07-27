@@ -1,7 +1,7 @@
 package repository;
 
 import domain.Product;
-import mappper.ProductMapper;
+import mapper.ProductMapper;
 import service.ApplicationContext;
 
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductRepo {
+public class ProductRepo implements SpecificOperation<Product,String> {
     private final String CREATE_TABLE = "create table if not exists product(id int primary key auto_increment ," +
             "name varchar(50) not null unique , number int not null , price int not null,category_name varchar(50) not null)";
 
@@ -23,6 +23,7 @@ public class ProductRepo {
 
     private final String CHANGE_OF_PRODUCT_NUMBER = "update product set number=? where name=? ";
 
+    @Override
     public void createTable() {
         try (Statement statement = ApplicationContext.getConnection().createStatement()) {
             statement.executeUpdate(CREATE_TABLE);
@@ -34,7 +35,83 @@ public class ProductRepo {
 
     }
 
-    public List<Product> getAllProduct() {
+    @Override
+    public void add(Product product)  {
+        System.out.println("product now not able to add");
+    }
+
+    @Override
+    public int size() throws SQLException {
+
+        Statement statement=ApplicationContext.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("select * from product");
+        int counter=0;
+
+        while (resultSet.next())
+            counter++;
+
+        return counter;
+    }
+
+    @Override
+    public void increaseProductNumber(String... element) {
+
+        String name=element[0];
+        Product product = null;
+        try {
+            product= getProduct(name);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            increaseProductNumber(name);
+        }
+
+        assert product != null;
+        int number = product.getNumberOfProduct()+ 1;
+
+        try (PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(CHANGE_OF_PRODUCT_NUMBER)) {
+
+            preparedStatement.setInt(1, number);
+            preparedStatement.setString(2, name);
+            preparedStatement.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void decreaseProductNumber(String... element) {
+
+        String name=element[0];
+
+        Product p = null;
+        try {
+            p= getProduct(name);
+        } catch (SQLException e) {
+            System.out.println(e.getErrorCode());
+            decreaseProductNumber(name);
+        }
+
+        assert p != null;
+        int number = p.getNumberOfProduct() - 1;
+
+        try (PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(CHANGE_OF_PRODUCT_NUMBER)) {
+
+            preparedStatement.setInt(1, number);
+            preparedStatement.setString(2, name);
+            preparedStatement.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+
+    }
+
+    @Override
+    public List<Product> getAllProduct(String... element) {
         List<Product> myList = new ArrayList<>();
 
         try (Statement statement = ApplicationContext.getConnection().createStatement()) {
@@ -64,54 +141,7 @@ public class ProductRepo {
         }
         return null;
     }
-    public void addNumberOfProduct(String name){
 
-        Product product = null;
-        try {
-            product= getProduct(name);
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
-            removeNumberOfProduct(name);
-        }
-
-        int number = product.getNumberOfProduct()+ 1;
-
-        try (PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(CHANGE_OF_PRODUCT_NUMBER)) {
-
-            preparedStatement.setInt(1, number);
-            preparedStatement.setString(2, name);
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
-        }
-
-    }
-
-    public void removeNumberOfProduct(String name) {
-
-        Product p = null;
-        try {
-           p= getProduct(name);
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
-            removeNumberOfProduct(name);
-        }
-
-        int number = p.getNumberOfProduct() - 1;
-
-        try (PreparedStatement preparedStatement = ApplicationContext.getConnection().prepareStatement(CHANGE_OF_PRODUCT_NUMBER)) {
-
-            preparedStatement.setInt(1, number);
-            preparedStatement.setString(2, name);
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
-        }
-
-
-    }
 
     public void addDefaultProductToMarket() {
 
@@ -155,8 +185,9 @@ public class ProductRepo {
 
             System.out.println("add default product to market !!!");
 
-        } catch (SQLException e) {
-            System.out.println(e.getErrorCode());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
